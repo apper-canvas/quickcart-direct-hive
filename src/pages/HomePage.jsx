@@ -9,6 +9,7 @@ import Button from "@/components/atoms/Button";
 import ApperIcon from "@/components/ApperIcon";
 import { productService } from "@/services/api/productService";
 import { cartService } from "@/services/api/cartService";
+import { wishlistService } from "@/services/api/wishlistService";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -18,10 +19,10 @@ const HomePage = () => {
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
+const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartItems, setCartItems] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [sortBy, setSortBy] = useState("name");
-
   const categories = [...new Set(products.map(p => p.category))];
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -38,8 +39,7 @@ const HomePage = () => {
       setLoading(false);
     }
   };
-
-  const loadCart = async () => {
+const loadCart = async () => {
     try {
       const cartData = await cartService.getCart();
       setCartItems(cartData);
@@ -48,9 +48,18 @@ const HomePage = () => {
     }
   };
 
+  const loadWishlist = async () => {
+    try {
+      const wishlistData = await wishlistService.getAll();
+      setWishlistItems(wishlistData);
+    } catch (err) {
+      console.error("Failed to load wishlist:", err);
+    }
+  };
   useEffect(() => {
-    loadProducts();
+loadProducts();
     loadCart();
+    loadWishlist();
   }, []);
 
   useEffect(() => {
@@ -104,11 +113,21 @@ const HomePage = () => {
       toast.error("Failed to add item to cart");
     }
   };
-
-  const handleViewDetails = (product) => {
+const handleViewDetails = (product) => {
     setSelectedProduct(product);
   };
 
+  const handleToggleWishlist = async (productId) => {
+    try {
+      const updatedWishlist = await wishlistService.toggle(productId);
+      setWishlistItems(updatedWishlist);
+      const isWishlisted = updatedWishlist.includes(productId);
+      toast.success(isWishlisted ? 'Added to wishlist' : 'Removed from wishlist');
+    } catch (err) {
+      console.error('Failed to toggle wishlist:', err);
+      toast.error('Failed to update wishlist');
+    }
+  };
   const handleClearFilters = () => {
     setSelectedCategory("all");
     setSearchTerm("");
@@ -175,22 +194,26 @@ const HomePage = () => {
         </div>
 
         {/* Product Grid */}
-        <ProductGrid
+<ProductGrid
           products={filteredProducts}
           loading={loading}
           error={error}
           onAddToCart={handleAddToCart}
           onViewDetails={handleViewDetails}
+          onToggleWishlist={handleToggleWishlist}
+          wishlistItems={wishlistItems}
           onRetry={loadProducts}
           onBrowseProducts={handleClearFilters}
         />
 
         {/* Product Modal */}
-        <ProductModal
+<ProductModal
           product={selectedProduct}
           isOpen={!!selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={handleAddToCart}
+          onToggleWishlist={handleToggleWishlist}
+          wishlistItems={wishlistItems}
         />
       </main>
     </div>

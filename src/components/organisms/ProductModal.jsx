@@ -5,7 +5,7 @@ import Badge from "@/components/atoms/Badge";
 import ApperIcon from "@/components/ApperIcon";
 import { motion } from "framer-motion";
 
-const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
+const ProductModal = ({ product, isOpen, onClose, onAddToCart, onToggleWishlist, wishlistItems }) => {
   if (!isOpen || !product) return null;
 
   const handleBackdropClick = (e) => {
@@ -56,7 +56,18 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart }) => {
                 </div>
               )}
               <div className="absolute top-4 left-4">
-                <Badge variant="primary">{product.category}</Badge>
+<Badge variant="primary">{product.category}</Badge>
+                <button
+                  onClick={() => onToggleWishlist(product.Id)}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label={wishlistItems?.includes(product.Id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <ApperIcon 
+                    name="Heart" 
+                    size={20} 
+                    className={wishlistItems?.includes(product.Id) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-500'} 
+                  />
+                </button>
               </div>
             </div>
             

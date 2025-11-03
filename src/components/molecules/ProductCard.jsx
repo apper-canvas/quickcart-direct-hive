@@ -4,7 +4,7 @@ import Button from "@/components/atoms/Button";
 import Badge from "@/components/atoms/Badge";
 import ApperIcon from "@/components/ApperIcon";
 
-const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
+const ProductCard = ({ product, onAddToCart, onViewDetails, onToggleWishlist, isWishlisted }) => {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     onAddToCart(product);
@@ -16,7 +16,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
       className="group overflow-hidden"
       onClick={() => onViewDetails(product)}
     >
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+<div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -27,8 +27,24 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }) => {
             <Badge variant="error">Out of Stock</Badge>
           </div>
         )}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex items-center gap-2">
           <Badge variant="primary">{product.category}</Badge>
+        </div>
+        <div className="absolute top-3 left-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleWishlist(product.Id);
+            }}
+            className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors shadow-sm"
+            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <ApperIcon 
+              name="Heart" 
+              size={16} 
+              className={isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'} 
+            />
+          </button>
         </div>
       </div>
       
